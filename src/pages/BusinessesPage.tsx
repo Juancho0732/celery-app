@@ -7,9 +7,9 @@ import type { BusinessKind } from '../lib/types'
 import { Badge, Button, Card, ErrorBox, Field, Input, Modal, PageHeader, Select, Spinner, useAction } from '../components/ui'
 
 export function BusinessesPage() {
-  const { businesses, businessesLoading, businessesError, reloadBusinesses, session, signOut } = useAuth()
+  const { businesses, canCreateBusinesses, businessesLoading, businessesError, reloadBusinesses, session, signOut } = useAuth()
   const [params, setParams] = useSearchParams()
-  const creating = params.get('nuevo') === '1'
+  const creating = canCreateBusinesses && params.get('nuevo') === '1'
   const navigate = useNavigate()
   const [name, setName] = useState('')
   const [kind, setKind] = useState<BusinessKind>('perecedero')
@@ -42,7 +42,7 @@ export function BusinessesPage() {
       <PageHeader
         title="Tus negocios"
         subtitle="Solo ves los negocios donde eres socio."
-        actions={<Button variant="primary" onClick={() => setParams({ nuevo: '1' })}>+ Crear negocio</Button>}
+        actions={canCreateBusinesses && <Button variant="primary" onClick={() => setParams({ nuevo: '1' })}>+ Crear negocio</Button>}
       />
 
       {businessesLoading && !businesses.length ? <Spinner /> : <ErrorBox error={businessesError} onRetry={() => void reloadBusinesses()} />}
@@ -51,7 +51,9 @@ export function BusinessesPage() {
         <Card className="p-8 text-center">
           <p className="font-medium">Todavía no tienes negocios</p>
           <p className="mx-auto mt-1 max-w-md text-sm text-ink-muted">
-            Crea el primero, o si un socio te invitó, pídele que confirme que usó este mismo correo: {session?.user.email}.
+            {canCreateBusinesses
+              ? 'Crea el primero con el botón «Crear negocio».'
+              : `Pídele al administrador que te invite con este mismo correo: ${session?.user.email}.`}
           </p>
         </Card>
       )}

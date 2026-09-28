@@ -1,7 +1,7 @@
 import { createContext, useCallback, useContext, useEffect, useState, type ReactNode } from 'react'
 import type { Session } from '@supabase/supabase-js'
 import { supabase } from '../lib/supabase'
-import { claimInvites, listMyBusinesses } from '../lib/api'
+import { claimInvites, isAppAdmin, listMyBusinesses } from '../lib/api'
 import type { BusinessWithRole } from '../lib/types'
 
 interface AuthState {
@@ -11,6 +11,8 @@ interface AuthState {
   /** true cuando se llegó desde el enlace de "recuperar contraseña". */
   recovering: boolean
   businesses: BusinessWithRole[]
+  /** true si puede crear negocios (administrador de la app). */
+  canCreateBusinesses: boolean
   businessesLoading: boolean
   businessesError: unknown
   reloadBusinesses: () => Promise<void>
@@ -24,6 +26,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [loading, setLoading] = useState(true)
   const [recovering, setRecovering] = useState(false)
   const [businesses, setBusinesses] = useState<BusinessWithRole[]>([])
+  const [canCreateBusinesses, setCanCreateBusinesses] = useState(false)
   const [businessesLoading, setBusinessesLoading] = useState(false)
   const [businessesError, setBusinessesError] = useState<unknown>(null)
 
@@ -44,6 +47,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const reloadBusinesses = useCallback(async () => {
     if (!userId) {
       setBusinesses([])
+      setCanCreateBusinesses(false)
       return
     }
     setBusinessesLoading(true)
@@ -51,7 +55,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     try {
       // Si alguien invitó este correo antes de que tuviera cuenta, aquí se une.
       await claimInvites().catch(() => 0)
-      setBusinesses(await listMyBusinesses(userId))
+      const [list, admin] = await Promise.all([listMyBusinesses(userId), isAppAdmin().catch(() => false)])
+      setBusinesses(list)
+      setCanCreateBusinesses(admin)
     } catch (e) {
       setBusinessesError(e)
     } finally {
@@ -69,7 +75,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   return (
     <AuthContext.Provider value={{
-      session, loading, recovering, businesses, businessesLoading, businessesError, reloadBusinesses, signOut,
+      session, loading, recovering, businesses, canCreateBusinesses, businessesLoading, businessesError, reloadBusinesses, signOut,
     }}>
       {children}
     </AuthContext.Provider>

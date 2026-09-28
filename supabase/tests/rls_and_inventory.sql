@@ -38,10 +38,20 @@ $$;
 
 grant execute on all functions in schema pg_temp to authenticated;
 
+-- Solo el dueño es administrador de la app.
+insert into public.app_admins (user_id) values ('00000000-0000-0000-0000-00000000000a');
+
 set local role authenticated;
+
+-- ── Un usuario que no es administrador de la app no puede crear negocios ──
+select pg_temp.login('00000000-0000-0000-0000-00000000000b');
+select pg_temp.check(not public.is_app_admin(), 'un socio no es administrador de la app');
+select pg_temp.expect_error($q$select public.create_business('Mi negocio', 'ropa')$q$, 'un socio no puede crear negocios');
+select pg_temp.expect_error('select count(*) from public.app_admins', 'nadie lee la tabla de administradores desde la app');
 
 -- ── El dueño crea los dos negocios ──
 select pg_temp.login('00000000-0000-0000-0000-00000000000a');
+select pg_temp.check(public.is_app_admin(), 'el dueño es administrador de la app');
 select id as purpal from public.create_business('Purpal', 'perecedero') \gset
 select id as libelle from public.create_business('Libelle', 'ropa') \gset
 select pg_temp.check((select count(*) from public.businesses) = 2, 'el dueño ve sus 2 negocios');

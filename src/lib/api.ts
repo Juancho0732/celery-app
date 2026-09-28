@@ -41,6 +41,10 @@ export async function updateBusiness(id: string, patch: Partial<Business>): Prom
   unwrap(await supabase.from('businesses').update(patch).eq('id', id).select('id').single())
 }
 
+export async function isAppAdmin(): Promise<boolean> {
+  return unwrap(await supabase.rpc('is_app_admin')) as boolean
+}
+
 export async function claimInvites(): Promise<number> {
   return unwrap(await supabase.rpc('claim_invites')) as number
 }

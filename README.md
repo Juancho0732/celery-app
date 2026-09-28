@@ -21,7 +21,7 @@ Negocios iniciales:
 | Productos | Productos con variantes, precio y costo. |
 | Inventario | Entradas, ajustes, lotes y vencimientos, historial inmutable. |
 | Clientes | Datos de contacto e historial de compras. |
-| Configuración | Datos del negocio, logo, socios e invitaciones. |
+| Configuración | Datos del negocio, logo, socios e invitaciones. Solo el administrador de la app crea negocios. |
 
 ## Arquitectura
 
@@ -35,8 +35,9 @@ Negocios iniciales:
 ## Puesta en marcha (producción)
 
 1. Crea un proyecto en [supabase.com](https://supabase.com) (plan gratuito).
-2. Aplica el esquema: en el panel, **SQL Editor** → pega el contenido de
-   `supabase/migrations/20260928000000_init.sql` → **Run**.
+2. Aplica el esquema: en el panel, **SQL Editor** → pega el contenido de cada
+   archivo de `supabase/migrations/`, **en orden** (primero
+   `20260928000000_init.sql`, luego `20260929000000_app_admins.sql`) → **Run**.
    (O con la CLI: `npx supabase link --project-ref TU_REF && npx supabase db push`.)
 3. **Authentication → Sign In / Providers → Email:** deja activado
    *Confirm email*. Es importante: las invitaciones a socios solo se aceptan
@@ -48,6 +49,16 @@ Negocios iniciales:
    - `VITE_SUPABASE_URL` = Project URL (Project Settings → API)
    - `VITE_SUPABASE_ANON_KEY` = publishable (anon) key
 6. **Settings → Pages → Source:** GitHub Actions. Cada push a `main` despliega.
+7. Entra a la app publicada y **regístrate** con tu correo. Luego, en el
+   **SQL Editor** de Supabase, conviértete en administrador de la app (solo
+   los administradores pueden crear negocios; los socios no):
+
+   ```sql
+   insert into public.app_admins (user_id)
+   select id from auth.users where email = 'tu-correo@ejemplo.com';
+   ```
+
+   Recarga la app: ya verás el botón **Crear negocio**.
 
 ## Desarrollo local
 

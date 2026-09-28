@@ -22,7 +22,7 @@ function navClass({ isActive }: { isActive: boolean }) {
 }
 
 function Sidebar({ children }: { children?: ReactNode }) {
-  const { session, businesses, signOut } = useAuth()
+  const { session, businesses, canCreateBusinesses, signOut } = useAuth()
   const { businessId } = useParams()
   const navigate = useNavigate()
   const { pathname } = useLocation()
@@ -50,7 +50,7 @@ function Sidebar({ children }: { children?: ReactNode }) {
           {!businessId && <option value="">Elige un negocio…</option>}
           {businesses.length > 1 && <option value="todos">Todos mis negocios</option>}
           {businesses.map((b) => <option key={b.id} value={b.id}>{b.name}</option>)}
-          <option value="nuevo">+ Crear negocio</option>
+          {canCreateBusinesses && <option value="nuevo">+ Crear negocio</option>}
         </select>
       </div>
 
