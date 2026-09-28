@@ -164,12 +164,12 @@ export function Modal({ open, title, onClose, children, footer, wide }: {
   // Portal al body: así un modal con su propio <form> nunca queda anidado
   // dentro del formulario de la página.
   return createPortal(
-    <div className="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto bg-black/40 p-4 pt-[10vh]" onMouseDown={onClose}>
+    <div className="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto bg-black/70 p-4 pt-[10vh] backdrop-blur-sm" onMouseDown={onClose}>
       <div
         role="dialog"
         aria-modal="true"
         aria-label={title}
-        className={`w-full ${wide ? 'max-w-2xl' : 'max-w-md'} rounded-xl border border-border bg-surface shadow-xl`}
+        className={`w-full ${wide ? 'max-w-2xl' : 'max-w-md'} rounded-xl border border-border-strong bg-surface shadow-2xl shadow-black/60`}
         onMouseDown={(e) => e.stopPropagation()}
         // Los eventos de React atraviesan los portales: sin esto, enviar el
         // formulario del modal también enviaría el formulario de la página.

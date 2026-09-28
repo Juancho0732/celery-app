@@ -3,79 +3,43 @@
 @theme {
   --font-sans: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
 
-  --color-canvas: #f6f6f3;
-  --color-surface: #fcfcfb;
-  --color-surface-muted: #f0efec;
-  --color-border: #e1e0d9;
-  --color-border-strong: #c3c2b7;
-  --color-ink: #0b0b0b;
-  --color-ink-muted: #52514e;
-  --color-ink-faint: #898781;
+  /* Tema único oscuro con acento morado (decisión de diseño: no depende del
+     modo claro/oscuro del sistema operativo). */
+  --color-canvas: #0d0d0f;
+  --color-surface: #151518;
+  --color-surface-muted: #1d1d21;
+  --color-border: #26262b;
+  --color-border-strong: #34343b;
+  --color-ink: #f5f5f7;
+  --color-ink-muted: #a6a6b0;
+  --color-ink-faint: #71717b;
 
-  /* Acento: verde apio. */
-  --color-brand: #1f7a4d;
-  --color-brand-hover: #18633e;
+  --color-brand: #7c3aed;
+  --color-brand-hover: #8b5cf6;
   --color-brand-ink: #ffffff;
-  --color-brand-soft: #e3f1e9;
-  --color-brand-text: #17603c;
+  --color-brand-soft: rgba(139, 92, 246, 0.16);
+  --color-brand-text: #c4b5fd;
 
   /* Estados (siempre acompañados de ícono o texto, nunca solo color). */
-  --color-good: #0ca30c;
-  --color-good-text: #006300;
-  --color-good-soft: #e5f4e5;
-  --color-warning: #fab219;
-  --color-warning-text: #8a5a00;
-  --color-warning-soft: #fdf1d6;
-  --color-bad: #d03b3b;
-  --color-bad-text: #b02c2c;
-  --color-bad-soft: #fbe7e7;
+  --color-good: #3ecb8f;
+  --color-good-text: #5ad6a0;
+  --color-good-soft: rgba(62, 203, 143, 0.14);
+  --color-warning: #e3a83b;
+  --color-warning-text: #f0bd5a;
+  --color-warning-soft: rgba(227, 168, 59, 0.14);
+  --color-bad: #e5484d;
+  --color-bad-text: #f2787c;
+  --color-bad-soft: rgba(229, 72, 77, 0.14);
 
-  /* Paleta categórica de gráficas, en orden fijo (validada para daltonismo). */
-  --color-series-1: #2a78d6;
-  --color-series-2: #eb6834;
-  --color-series-3: #1baf7a;
-  --color-series-4: #eda100;
-  --color-series-5: #e87ba4;
-  --color-series-6: #008300;
-  --color-series-7: #4a3aa7;
-  --color-series-8: #e34948;
-  --color-grid: #e1e0d9;
-  --color-axis: #c3c2b7;
+  /* Gráficas: una sola serie en el morado de la marca, más claro para que
+     contraste con el fondo (≈6:1). */
+  --color-series-1: #9d7bff;
+  --color-grid: #232327;
+  --color-axis: #34343b;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root:not([data-theme='light']) {
-    color-scheme: dark;
-    --color-canvas: #0d0d0d;
-    --color-surface: #1a1a19;
-    --color-surface-muted: #232322;
-    --color-border: #2c2c2a;
-    --color-border-strong: #383835;
-    --color-ink: #ffffff;
-    --color-ink-muted: #c3c2b7;
-    --color-ink-faint: #898781;
-    --color-brand: #2f9e66;
-    --color-brand-hover: #3bb576;
-    --color-brand-ink: #ffffff;
-    --color-brand-soft: #16301f;
-    --color-brand-text: #7fd3a6;
-    --color-good-text: #0ca30c;
-    --color-good-soft: #132613;
-    --color-warning-text: #fab219;
-    --color-warning-soft: #2e2410;
-    --color-bad-text: #ec7a7a;
-    --color-bad-soft: #321616;
-    --color-series-1: #3987e5;
-    --color-series-2: #d95926;
-    --color-series-3: #199e70;
-    --color-series-4: #c98500;
-    --color-series-5: #d55181;
-    --color-series-6: #008300;
-    --color-series-7: #9085e9;
-    --color-series-8: #e66767;
-    --color-grid: #2c2c2a;
-    --color-axis: #383835;
-  }
+:root {
+  color-scheme: dark;
 }
 
 html,

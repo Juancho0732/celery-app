@@ -78,9 +78,9 @@ export async function downloadQuotePdf(business: Business, quote: QuoteWithItems
     head: [['Producto', ...['Cant.', 'Precio unit.', 'Total'].map((content) => ({ content, styles: { halign: 'right' as const } }))]],
     body: quote.quote_items.map((i) => [i.description, String(i.quantity), formatCOP(i.unit_price), formatCOP(i.quantity * i.unit_price)]),
     styles: { fontSize: 9.5, cellPadding: 7, textColor: 20 },
-    headStyles: { fillColor: [31, 122, 77], textColor: 255, fontStyle: 'bold' },
+    headStyles: { fillColor: [124, 58, 237], textColor: 255, fontStyle: 'bold' },
     columnStyles: { 1: { halign: 'right', cellWidth: 50 }, 2: { halign: 'right', cellWidth: 95 }, 3: { halign: 'right', cellWidth: 95 } },
-    alternateRowStyles: { fillColor: [246, 246, 243] },
+    alternateRowStyles: { fillColor: [246, 243, 255] },
   })
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   y = (doc as any).lastAutoTable.finalY + 18
