@@ -106,6 +106,18 @@ select pg_temp.check((select stock from public.variant_stock where variant_id = 
 select pg_temp.check((select unit_cost from public.order_items where order_id = :'order1') = 4000, 'el costo se copia al vender');
 select pg_temp.check((select description from public.order_items where order_id = :'order1') = 'Mango · 500 g', 'la descripción se copia del catálogo');
 
+select pg_temp.expect_error(format($q$update public.orders set status = 'nuevo', stock_applied = false where id = %L$q$, :'order1'),
+  'el estado no se cambia con un UPDATE directo');
+select pg_temp.expect_error(format($q$select public.revert_order_stock(%L)$q$, :'order1'),
+  'no se puede devolver inventario sin cancelar el pedido');
+select id as draft from public.save_order(
+  format('{"business_id":"%s"}', :'purpal')::jsonb,
+  format('[{"variant_id":"%s","quantity":1}]', :'mango500')::jsonb) \gset
+select pg_temp.expect_error(format($q$update public.orders set status = 'entregado' where id = %L$q$, :'draft'),
+  'no se puede marcar entregado sin descontar inventario');
+update public.orders set payment_status = 'pagado', notes = 'ok' where id = :'draft';
+select pg_temp.check((select payment_status from public.orders where id = :'draft') = 'pagado', 'el pago sí se actualiza directamente');
+delete from public.orders where id = :'draft';
 select pg_temp.expect_error(format($q$select public.save_order('{"id":"%s","business_id":"%s"}', '[{"variant_id":"%s","quantity":1}]')$q$, :'order1', :'purpal', :'mango500'),
   'un pedido entregado no se puede editar');
 select pg_temp.expect_error(format($q$delete from public.order_items where order_id = %L$q$, :'order1'),
@@ -124,7 +136,7 @@ select pg_temp.expect_error(format($q$select public.set_order_status(%L, 'nuevo'
 select id as order2, number as order2_number from public.save_order(
   format('{"business_id":"%s","status":"entregado"}', :'purpal')::jsonb,
   format('[{"variant_id":"%s","quantity":16}]', :'mango500')::jsonb) \gset
-select pg_temp.check(:order2_number = 2, 'segundo pedido es el #2');
+select pg_temp.check(:order2_number = 3, 'los consecutivos no se reutilizan aunque se borre un pedido');
 select pg_temp.check((select stock from public.variant_stock where variant_id = :'mango500') = -2, 'sobreventa deja existencia negativa visible');
 
 -- ── Cotización → pedido ──

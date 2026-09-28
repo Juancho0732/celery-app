@@ -69,6 +69,10 @@ create table public.profiles (
   created_at timestamptz not null default now()
 );
 
+-- Segunda llave hacia profiles para poder traer el correo de cada miembro.
+alter table public.business_members
+  add constraint business_members_profile_fk foreign key (user_id) references public.profiles (id) on delete cascade;
+
 -- ───────────────────────── Catálogo ─────────────────────────
 
 create table public.products (
@@ -403,6 +407,23 @@ $$;
 create trigger order_items_guard before insert or update or delete on public.order_items
   for each row execute function public.guard_order_items();
 
+-- El estado y la marca de inventario de un pedido solo cambian a través de
+-- set_order_status, que es la que descuenta o devuelve unidades. Un UPDATE
+-- directo desde la app (o desde afuera) no puede marcar "entregado" sin mover
+-- el inventario.
+create function public.guard_order_status()
+returns trigger language plpgsql set search_path = '' as $$
+begin
+  if (new.status is distinct from old.status or new.stock_applied is distinct from old.stock_applied)
+     and coalesce(current_setting('app.order_status_change', true), '') <> 'on' then
+    raise exception 'El estado del pedido se cambia con set_order_status' using errcode = 'P0001';
+  end if;
+  return new;
+end;
+$$;
+create trigger orders_status_guard before update on public.orders
+  for each row execute function public.guard_order_status();
+
 -- ───────────────────────── Lógica de inventario ─────────────────────────
 
 -- Descuenta del inventario las unidades del pedido. En negocios perecederos
@@ -483,6 +504,7 @@ begin
   if v_order.status = 'cancelado' and p_status <> 'cancelado' then
     raise exception 'Un pedido cancelado no se puede reabrir; crea uno nuevo' using errcode = 'P0001';
   end if;
+  perform set_config('app.order_status_change', 'on', true);
 
   if p_status = 'entregado' then
     perform public.apply_order_stock(p_order);
@@ -497,6 +519,7 @@ begin
     end if;
     update public.orders set status = p_status where id = p_order returning * into v_order;
   end if;
+  perform set_config('app.order_status_change', 'off', true);
   return v_order;
 end;
 $$;
